@@ -1,7 +1,13 @@
-#include <GLUT/glut.h>
-#include "bevgrafmath2017.h"
 #include <cmath>
 #include <vector>
+
+#ifdef __APPLE__
+#  include <GLUT/glut.h>
+#else
+#  include <GL/glut.h>
+#endif
+
+#include "bevgrafmath2017.h"
 
 GLsizei winWidth = 1000, winHeight = 800;
 
@@ -253,10 +259,6 @@ void myDisplay() {
 	bernstein();
 	de_Casteljau();
 	glutSwapBuffers();
-
-	for (int i = 0; i < 11; i++) {
-		printMathObject(points[i]);
-	}
 }
 
 GLint getActivePoint(std::vector<vec2> p, GLint size, GLint sens, GLint x, GLint y) {
