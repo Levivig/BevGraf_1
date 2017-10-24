@@ -9,19 +9,18 @@
 
 #include "bevgrafmath2017.h"
 
-GLsizei winWidth = 1000, winHeight = 800;
+//	Size of window
+GLsizei winHeight = 800, winWidth = 1000;
 
 std::vector<vec2> points = { {80, 796}, {42, 671}, {287, 782}, {649, 640},{706.2381, 585.2857},
 							{834, 445},{466, 475},{190, 497.5},{42, 349},
 							{171, 136},{507, 182} };
 
-GLint dragged = -1;
-
 //	Hermite
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
 
-float start = -1.5;
-float end = 2.0;
+float start = -2;
+float end = 1.5;
 
 float t1 = start;
 float t2 = (start + end) / 2;
@@ -41,6 +40,8 @@ GLfloat u = 0.5;
 
 // set up pick radius for detecting movement of a control point
 int pickRadius = 4;
+
+GLint dragged = -1;
 
 void displayControlPolygon() {
 
@@ -72,8 +73,6 @@ void displayControlPolygon() {
 }
 
 void hermite() {
-	//points[4] = points[3] + (G * M * TT)/3;
-
 	G = {points[1], points[2], points[3], points[0]-points[1]};
 
 	glLineWidth(3.0);
@@ -91,15 +90,13 @@ void hermite() {
 }
 
 void bernstein() {
-	vec2 curvePoint;
-	//points[4] = points[3] + (G * M * TT)/3;
 
 	glLineWidth(3.0);
 	glColor3f(0.75, 0.0, 1.0);
 	glBegin(GL_LINE_STRIP);
 
 	for (float t = 0; t <= 1; t+=0.001) {
-		curvePoint =
+		vec2 curvePoint =
 		(-(pow(t,3)) + 3*pow(t,2) -3*t + 1) * points[3] +
 		(3*pow(t,3) - 6*pow(t,2) + 3*t) * points[4] +
 		(-3*pow(t,3) + 3*pow(t,2)) * points[5] +
@@ -109,7 +106,7 @@ void bernstein() {
 	}
 	glEnd();
 
-	//points[4] = points[3] + (G * M * TT)/3;
+	points[4] = points[3] + (G * M * TT)/3;
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 }
 
@@ -240,6 +237,8 @@ void de_Casteljau() {
 		glVertex2f(curvePoint.x, curvePoint.y);
 	}
 	glEnd();
+
+	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 }
 
 
