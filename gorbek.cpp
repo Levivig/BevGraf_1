@@ -47,6 +47,7 @@ void displayControlPolygon() {
 
 	points[4] = points[3] + (G * M * TT)/3;
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
+
 	//	Lines
 	glLineWidth(1.0);
 	glColor3f(0.5, 0.5, 0.5);
@@ -66,7 +67,7 @@ void displayControlPolygon() {
 	{
 		glColor3f(1.0, 0.0, 0.0);
 		if(i == 4 || i == 7)
-			glColor3f(1.0, 1.0, 0.0);
+			glColor3f(0.25, 0.25, 0.25);
 		glVertex2i(points[i].x,points[i].y);
 	}
 	glEnd();
@@ -116,7 +117,7 @@ vec2 lerp(vec2 a, vec2 b, float t) {
 }
 
 
-vec2 calculateCurvePoint(std::vector<vec2> pontok, double uu) {
+vec2 calculateCurvePoint(std::vector<vec2> pontok, float uu) {
 
 	vec2 b0[4];
 	b0[0] = lerp(pontok[0], pontok[1], uu);
@@ -139,10 +140,8 @@ vec2 calculateCurvePoint(std::vector<vec2> pontok, double uu) {
 }
 
 void de_Casteljau() {
-	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 
 	vec2 b0[4];
-
 	b0[0] = lerp(points[6], points[7], u);
 	b0[1] = lerp(points[7], points[8], u);
 	b0[2] = lerp(points[8], points[9], u);
@@ -151,7 +150,6 @@ void de_Casteljau() {
 	glLineWidth(1.0);
 	glColor3f(0.0, 0.5, 0.5);
 	glBegin(GL_LINE_STRIP);
-
 	for (int i = 0; i < 4; i++) {
 		glVertex2f(b0[i].x, b0[i].y);
 	}
@@ -160,14 +158,12 @@ void de_Casteljau() {
 	glPointSize(8.0);
 	glColor3f(0.75, 0.5, 0.5);
 	glBegin(GL_POINTS);
-
 	for (int i = 0; i < 4; i++) {
 		glVertex2f(b0[i].x, b0[i].y);
 	}
 	glEnd();
 
 	vec2 b1[3];
-
 	b1[0] = lerp(b0[0], b0[1], u);
 	b1[1] = lerp(b0[1], b0[2], u);
 	b1[2] = lerp(b0[2], b0[3], u);
@@ -175,7 +171,6 @@ void de_Casteljau() {
 	glLineWidth(1.0);
 	glColor3f(0.0, 0.5, 0.5);
 	glBegin(GL_LINE_STRIP);
-
 	for (int i = 0; i < 3; i++) {
 		glVertex2f(b1[i].x, b1[i].y);
 	}
@@ -184,7 +179,6 @@ void de_Casteljau() {
 	glPointSize(8.0);
 	glColor3f(0.75, 0.5, 0.5);
 	glBegin(GL_POINTS);
-
 	for (int i = 0; i < 3; i++) {
 		glVertex2f(b1[i].x, b1[i].y);
 	}
@@ -192,14 +186,12 @@ void de_Casteljau() {
 
 
 	vec2 b2[2];
-
 	b2[0] = lerp(b1[0], b1[1], u);
 	b2[1] = lerp(b1[1], b1[2], u);
 
 	glLineWidth(1.0);
 	glColor3f(0.0, 0.5, 0.5);
 	glBegin(GL_LINE_STRIP);
-
 	for (int i = 0; i < 2; i++) {
 		glVertex2f(b2[i].x, b2[i].y);
 	}
@@ -208,7 +200,6 @@ void de_Casteljau() {
 	glPointSize(8.0);
 	glColor3f(0.75, 0.5, 0.5);
 	glBegin(GL_POINTS);
-
 	for (int i = 0; i < 2; i++) {
 		glVertex2f(b2[i].x, b2[i].y);
 	}
@@ -219,7 +210,7 @@ void de_Casteljau() {
 	glPointSize(8);
 	glColor3f(0.0, 0.0, 0.0);
 	glBegin(GL_POINTS);
-	glVertex2f(b31.x, b31.y);
+		glVertex2f(b31.x, b31.y);
 	glEnd();
 
 	std::vector<vec2> pp(5);
@@ -273,7 +264,7 @@ GLint getActivePoint(std::vector<vec2> p, GLint size, GLint sens, GLint x, GLint
 void processMouse(GLint button, GLint action, GLint xMouse, GLint yMouse) {
 	GLint i;
 	if (button == GLUT_LEFT_BUTTON && action == GLUT_DOWN)
-		if ((i = getActivePoint(points, 11, pickRadius, xMouse, winHeight - yMouse)) != -1)
+		if ((i = getActivePoint(points, points.size(), pickRadius, xMouse, winHeight - yMouse)) != -1)
 			dragged = i;
 	if (button == GLUT_LEFT_BUTTON && action == GLUT_UP)
 		dragged = -1;
