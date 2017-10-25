@@ -15,6 +15,7 @@ GLsizei winHeight = 800, winWidth = 1000;
 std::vector<vec2> points = { {80, 796}, {42, 671}, {287, 782}, {649, 640},{706.2381, 585.2857},
 							{834, 445},{466, 475},{190, 497.5},{42, 349},
 							{171, 136},{507, 182} };
+vec2 erintoPont = {0,0};
 
 //	Hermite
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
@@ -46,6 +47,7 @@ GLint dragged = -1;
 void displayControlPolygon() {
 
 	points[4] = points[3] + (G * M * TT)/3;
+ 	erintoPont = points[3] + (G * M * TT);
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 
 	//	Lines
@@ -59,17 +61,24 @@ void displayControlPolygon() {
 	}
 	glEnd();
 
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(erintoPont.x, erintoPont.y);
+	glVertex2i(points[4].x,points[4].y);
+	glEnd();
+
 	//	Points
 	glPointSize(8);
 
 	glBegin(GL_POINTS);
 	for (int i = 0; i < 11; i++)
 	{
-		glColor3f(1.0, 0.0, 0.0);
+		glColor3f(1.0, 0.0, 1.0);
 		if(i == 4 || i == 7)
-			glColor3f(0.25, 0.25, 0.25);
-		glVertex2i(points[i].x,points[i].y);
+			glColor3f(0.0, 1.0, 1.0);
+		glVertex2f(points[i].x,points[i].y);
 	}
+	glColor3f(0.0, 1.0, 1.0);
+	glVertex2f(erintoPont.x, erintoPont.y);
 	glEnd();
 }
 
@@ -77,7 +86,7 @@ void hermite() {
 	G = {points[1], points[2], points[3], points[0]-points[1]};
 
 	glLineWidth(3.0);
-	glColor3f(0.0, 0.0, 1.0);
+	glColor3f(1.0, 0.0, 0.0);
 	glBegin(GL_LINE_STRIP);
 	for (float t = start; t <= end; t+=0.001) {
 		vec4 T = {t*t*t, t*t, t, 1};
@@ -88,12 +97,13 @@ void hermite() {
 
 	//	érintő kiszámítása utolsó pontban
 	points[4] = points[3] + (G * M * TT)/3;
+	erintoPont = points[3] + (G * M * TT);
 }
 
 void bernstein() {
 
 	glLineWidth(3.0);
-	glColor3f(0.75, 0.0, 1.0);
+	glColor3f(0.0 , 1.0, 0.0);
 	glBegin(GL_LINE_STRIP);
 
 	for (float t = 0; t <= 1; t+=0.001) {
@@ -108,6 +118,7 @@ void bernstein() {
 	glEnd();
 
 	points[4] = points[3] + (G * M * TT)/3;
+	erintoPont = points[3] + (G * M * TT);
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 }
 
@@ -221,7 +232,7 @@ void de_Casteljau() {
 	pp[4] = points[10];
 
 	glLineWidth(2);
-	glColor3f(0.0, 0.75, 1.0);
+	glColor3f(0.0, 0.0, 1.0);
 	glBegin(GL_LINE_STRIP);
 	for (float t = 0; t <= 1; t += 0.001) {
 		vec2 curvePoint = calculateCurvePoint(pp, t);
@@ -296,14 +307,13 @@ void keyboard(unsigned char key, int x, int y)
 	case 'w':
 		if (u < 1) u += 0.002;
 		else u = 1;
-		glutPostRedisplay();
 		break;
 	case 's':
 		if (u > 0) u -= 0.002;
 		else u = 0;
-		glutPostRedisplay();
 		break;
 	}
+	glutPostRedisplay();
 }
 
 int main(int argc, char** argv) {
