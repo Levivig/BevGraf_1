@@ -316,7 +316,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'r':
 		points = originalPoints;
-		calculatePoints();
+		//calculatePoints();
 		break;
 	}
 	glutPostRedisplay();
