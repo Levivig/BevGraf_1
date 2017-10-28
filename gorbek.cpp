@@ -12,20 +12,26 @@
 //	Size of window
 GLsizei winHeight = 800, winWidth = 1000;
 
-std::vector<vec2> points = { {80, 796}, {42, 671}, {287, 782}, {649, 640},{706.2381, 585.2857},
+std::vector<vec2> points = { {66, 786}, {44, 653}, {285, 776}, {578, 738},{703, 719},
 							{834, 445},{466, 475},{190, 497.5},{42, 349},
 							{171, 136},{507, 182} };
+
 vec2 erintoPont = {0,0};
 
-//	Hermite
+std::vector<vec2> originalPoints = points;
+
+//	Hermite-ív paraméter tartománya
+GLfloat start = -2;
+GLfloat middle = 0.5;
+GLfloat end = 1.5;
+
+
+//	Hermite-ív
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
 
-float start = -2;
-float end = 1.5;
-
-float t1 = start;
-float t2 = (start + end) / 2;
-float t3 = end;
+GLfloat t1 = start;
+GLfloat t2 = middle;
+GLfloat t3 = end;
 
 vec4 T1 = {t1*t1*t1, t1*t1, t1, 1};
 vec4 T2 = {t2*t2*t2, t2*t2, t2, 1};
@@ -40,15 +46,19 @@ vec4 TT = {3*t3*t3, 2*t3, 1, 0};
 GLfloat u = 0.5;
 
 // set up pick radius for detecting movement of a control point
-int pickRadius = 4;
+GLint pickRadius = 4;
 
 GLint dragged = -1;
 
-void displayControlPolygon() {
-
+void calculatePoints() {
 	points[4] = points[3] + (G * M * TT)/3;
- 	erintoPont = points[3] + (G * M * TT);
+	erintoPont = points[3] + (G * M * TT);
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
+
+}
+
+void displayControlPolygon() {
+	calculatePoints();
 
 	//	Lines
 	glLineWidth(1.0);
@@ -57,13 +67,13 @@ void displayControlPolygon() {
 	glBegin(GL_LINE_STRIP);
 	for (int i = 0; i < 11; i++)
 	{
-	  glVertex2i(points[i].x,points[i].y);
+	  glVertex2f(points[i].x,points[i].y);
 	}
 	glEnd();
 
 	glBegin(GL_LINE_STRIP);
 	glVertex2f(erintoPont.x, erintoPont.y);
-	glVertex2i(points[4].x,points[4].y);
+	glVertex2f(points[4].x,points[4].y);
 	glEnd();
 
 	//	Points
@@ -83,6 +93,7 @@ void displayControlPolygon() {
 }
 
 void hermite() {
+	calculatePoints();
 	G = {points[1], points[2], points[3], points[0]-points[1]};
 
 	glLineWidth(3.0);
@@ -94,13 +105,10 @@ void hermite() {
 		glVertex2f(curvePoint.x, curvePoint.y);
 	}
 	glEnd();
-
-	//	érintő kiszámítása utolsó pontban
-	points[4] = points[3] + (G * M * TT)/3;
-	erintoPont = points[3] + (G * M * TT);
 }
 
 void bernstein() {
+	calculatePoints();
 
 	glLineWidth(3.0);
 	glColor3f(0.0 , 1.0, 0.0);
@@ -116,19 +124,14 @@ void bernstein() {
 		glVertex2f(curvePoint.x, curvePoint.y);
 	}
 	glEnd();
-
-	points[4] = points[3] + (G * M * TT)/3;
-	erintoPont = points[3] + (G * M * TT);
-	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 }
 
-vec2 lerp(vec2 a, vec2 b, float t) {
-	float s = (1-t);
+vec2 lerp(vec2 a, vec2 b, GLfloat t) {
+	GLfloat s = (1-t);
 	return {a.x*s + b.x*t, a.y*s + b.y*t };
 }
 
-
-vec2 calculateCurvePoint(std::vector<vec2> pontok, float uu) {
+vec2 calculateCurvePoint(std::vector<vec2> pontok, GLfloat uu) {
 
 	vec2 b0[4];
 	b0[0] = lerp(pontok[0], pontok[1], uu);
@@ -151,6 +154,7 @@ vec2 calculateCurvePoint(std::vector<vec2> pontok, float uu) {
 }
 
 void de_Casteljau() {
+	calculatePoints();
 
 	vec2 b0[4];
 	b0[0] = lerp(points[6], points[7], u);
@@ -239,10 +243,7 @@ void de_Casteljau() {
 		glVertex2f(curvePoint.x, curvePoint.y);
 	}
 	glEnd();
-
-	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 }
-
 
 void init() {
 	glClearColor(1.0, 1.0, 1.0, 0.0);
@@ -255,10 +256,11 @@ void init() {
 
 void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);
-	displayControlPolygon();
 	hermite();
 	bernstein();
 	de_Casteljau();
+
+	displayControlPolygon();
 	glutSwapBuffers();
 }
 
@@ -312,13 +314,17 @@ void keyboard(unsigned char key, int x, int y)
 		if (u > 0) u -= 0.002;
 		else u = 0;
 		break;
+	case 'r':
+		points = originalPoints;
+		calculatePoints();
+		break;
 	}
 	glutPostRedisplay();
 }
 
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(winWidth, winHeight);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("1. Beadandó");
