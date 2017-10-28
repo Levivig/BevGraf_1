@@ -26,7 +26,7 @@ GLfloat middle = 0.5;
 GLfloat end = 1.5;
 
 
-//	Hermite-ív	///////////////////////////////////////////////////////////////
+//////////////////////////////  Hermite-ív	///////////////////////////////////
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
 
 GLfloat t1 = start;
@@ -65,27 +65,26 @@ void calculatePoints() {
 void displayControlPolygon() {
 	calculatePoints();
 
-	if (displayPoligon) {
-		//	Lines
-		glLineWidth(1.0);
-		glColor3f(0.5, 0.5, 0.5);
+	glLineWidth(1.0);
+	glColor3f(0.5, 0.5, 0.5);
 
-		glBegin(GL_LINE_STRIP);
-		for (int i = 0; i < 11; i++)
-		{
-		  glVertex2f(points[i].x,points[i].y);
-		}
-		glEnd();
-
-		glBegin(GL_LINE_STRIP);
-		glVertex2f(erintoPont.x, erintoPont.y);
-		glVertex2f(points[4].x,points[4].y);
-		glEnd();
+	glBegin(GL_LINE_STRIP);
+	for (int i = 0; i < 11; i++)
+	{
+	  glVertex2f(points[i].x,points[i].y);
 	}
+	glEnd();
 
-	//	Points
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(erintoPont.x, erintoPont.y);
+	glVertex2f(points[4].x,points[4].y);
+	glEnd();
+}
+
+void displayControlPoints() {
+	calculatePoints();
+
 	glPointSize(8);
-
 	glBegin(GL_POINTS);
 	for (int i = 0; i < 11; i++)
 	{
@@ -97,6 +96,7 @@ void displayControlPolygon() {
 	glColor3f(0.0, 1.0, 1.0);
 	glVertex2f(erintoPont.x, erintoPont.y);
 	glEnd();
+
 }
 
 void hermite() {
@@ -261,8 +261,11 @@ void de_Casteljau() {
 void init() {
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 	glEnable(GL_POINT_SMOOTH);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 	glEnable(GL_LINE_SMOOTH);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 	glShadeModel(GL_SMOOTH);
 	gluOrtho2D(0.0, winWidth, 0.0, winHeight);
 }
@@ -274,7 +277,11 @@ void myDisplay() {
 	bernstein();
 	de_Casteljau();
 
-	displayControlPolygon();
+	if (displayPoligon) {
+		displayControlPolygon();
+	}
+
+	displayControlPoints();
 	glutSwapBuffers();
 }
 
@@ -333,26 +340,26 @@ void keyboard(unsigned char key, int x, int y) {
 		displayPoligon = true;
 		break;
 	case 'p':
-		if (displayPoligon) {
-			displayPoligon = false;
-		} else {
-			displayPoligon = true;
-		}
+			displayPoligon = !displayPoligon;
 	}
 	glutPostRedisplay();
 }
 
 int main(int argc, char** argv) {
+	//	Init
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(winWidth, winHeight);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("1. Beadandó");
-	init();
+
+	//	Custom functions
 	glutDisplayFunc(myDisplay);
 	glutMouseFunc(processMouse);
 	glutMotionFunc(processMouseActiveMotion);
 	glutKeyboardFunc(keyboard);
+
+	init();
 	glutMainLoop();
 	return 0;
 }
