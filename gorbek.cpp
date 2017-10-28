@@ -26,7 +26,7 @@ GLfloat middle = 0.5;
 GLfloat end = 1.5;
 
 
-//	Hermite-ív
+//	Hermite-ív	///////////////////////////////////////////////////////////////
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
 
 GLfloat t1 = start;
@@ -42,39 +42,46 @@ mat4 M = inverse({T1,T2,T3,T4, true});
 
 vec4 TT = {3*t3*t3, 2*t3, 1, 0};
 
+///////////////////////////////////////////////////////////////////////////////
+
 //	de Casteljau parameter
 GLfloat u = 0.5;
 
 // set up pick radius for detecting movement of a control point
 GLint pickRadius = 4;
 
+//	aktuális pont kiválasztása
 GLint dragged = -1;
+
+//	show/hide control polygon
+bool displayPoligon = true;
 
 void calculatePoints() {
 	points[4] = points[3] + (G * M * TT)/3;
 	erintoPont = points[3] + (G * M * TT);
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
-
 }
 
 void displayControlPolygon() {
 	calculatePoints();
 
-	//	Lines
-	glLineWidth(1.0);
-	glColor3f(0.5, 0.5, 0.5);
+	if (displayPoligon) {
+		//	Lines
+		glLineWidth(1.0);
+		glColor3f(0.5, 0.5, 0.5);
 
-	glBegin(GL_LINE_STRIP);
-	for (int i = 0; i < 11; i++)
-	{
-	  glVertex2f(points[i].x,points[i].y);
+		glBegin(GL_LINE_STRIP);
+		for (int i = 0; i < 11; i++)
+		{
+		  glVertex2f(points[i].x,points[i].y);
+		}
+		glEnd();
+
+		glBegin(GL_LINE_STRIP);
+		glVertex2f(erintoPont.x, erintoPont.y);
+		glVertex2f(points[4].x,points[4].y);
+		glEnd();
 	}
-	glEnd();
-
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(erintoPont.x, erintoPont.y);
-	glVertex2f(points[4].x,points[4].y);
-	glEnd();
 
 	//	Points
 	glPointSize(8);
@@ -126,7 +133,7 @@ void bernstein() {
 	glEnd();
 }
 
-vec2 lerp(vec2 a, vec2 b, GLfloat t) {
+vec2 oszto_pont(vec2 a, vec2 b, GLfloat t) {
 	GLfloat s = (1-t);
 	return {a.x*s + b.x*t, a.y*s + b.y*t };
 }
@@ -134,21 +141,21 @@ vec2 lerp(vec2 a, vec2 b, GLfloat t) {
 vec2 calculateCurvePoint(std::vector<vec2> pontok, GLfloat uu) {
 
 	vec2 b0[4];
-	b0[0] = lerp(pontok[0], pontok[1], uu);
-	b0[1] = lerp(pontok[1], pontok[2], uu);
-	b0[2] = lerp(pontok[2], pontok[3], uu);
-	b0[3] = lerp(pontok[3], pontok[4], uu);
+	b0[0] = oszto_pont(pontok[0], pontok[1], uu);
+	b0[1] = oszto_pont(pontok[1], pontok[2], uu);
+	b0[2] = oszto_pont(pontok[2], pontok[3], uu);
+	b0[3] = oszto_pont(pontok[3], pontok[4], uu);
 
 	vec2 b1[3];
-	b1[0] = lerp(b0[0], b0[1], uu);
-	b1[1] = lerp(b0[1], b0[2], uu);
-	b1[2] = lerp(b0[2], b0[3], uu);
+	b1[0] = oszto_pont(b0[0], b0[1], uu);
+	b1[1] = oszto_pont(b0[1], b0[2], uu);
+	b1[2] = oszto_pont(b0[2], b0[3], uu);
 
 	vec2 b2[2];
-	b2[0] = lerp(b1[0], b1[1], uu);
-	b2[1] = lerp(b1[1], b1[2], uu);
+	b2[0] = oszto_pont(b1[0], b1[1], uu);
+	b2[1] = oszto_pont(b1[1], b1[2], uu);
 
-	vec2 b31 = lerp(b2[0], b2[1], uu);
+	vec2 b31 = oszto_pont(b2[0], b2[1], uu);
 
 	return b31;
 }
@@ -157,70 +164,76 @@ void de_Casteljau() {
 	calculatePoints();
 
 	vec2 b0[4];
-	b0[0] = lerp(points[6], points[7], u);
-	b0[1] = lerp(points[7], points[8], u);
-	b0[2] = lerp(points[8], points[9], u);
-	b0[3] = lerp(points[9], points[10], u);
+	b0[0] = oszto_pont(points[6], points[7], u);
+	b0[1] = oszto_pont(points[7], points[8], u);
+	b0[2] = oszto_pont(points[8], points[9], u);
+	b0[3] = oszto_pont(points[9], points[10], u);
 
-	glLineWidth(1.0);
-	glColor3f(0.0, 0.5, 0.5);
-	glBegin(GL_LINE_STRIP);
-	for (int i = 0; i < 4; i++) {
-		glVertex2f(b0[i].x, b0[i].y);
-	}
-	glEnd();
+	if (displayPoligon) {
+		glLineWidth(1.0);
+		glColor3f(0.0, 0.5, 0.5);
+		glBegin(GL_LINE_STRIP);
+		for (int i = 0; i < 4; i++) {
+			glVertex2f(b0[i].x, b0[i].y);
+		}
+		glEnd();
 
-	glPointSize(8.0);
-	glColor3f(0.75, 0.5, 0.5);
-	glBegin(GL_POINTS);
-	for (int i = 0; i < 4; i++) {
-		glVertex2f(b0[i].x, b0[i].y);
+		glPointSize(8.0);
+		glColor3f(0.75, 0.5, 0.5);
+		glBegin(GL_POINTS);
+		for (int i = 0; i < 4; i++) {
+			glVertex2f(b0[i].x, b0[i].y);
+		}
+		glEnd();
 	}
-	glEnd();
 
 	vec2 b1[3];
-	b1[0] = lerp(b0[0], b0[1], u);
-	b1[1] = lerp(b0[1], b0[2], u);
-	b1[2] = lerp(b0[2], b0[3], u);
+	b1[0] = oszto_pont(b0[0], b0[1], u);
+	b1[1] = oszto_pont(b0[1], b0[2], u);
+	b1[2] = oszto_pont(b0[2], b0[3], u);
 
-	glLineWidth(1.0);
-	glColor3f(0.0, 0.5, 0.5);
-	glBegin(GL_LINE_STRIP);
-	for (int i = 0; i < 3; i++) {
-		glVertex2f(b1[i].x, b1[i].y);
+	if (displayPoligon) {
+		glLineWidth(1.0);
+		glColor3f(0.0, 0.5, 0.5);
+		glBegin(GL_LINE_STRIP);
+		for (int i = 0; i < 3; i++) {
+			glVertex2f(b1[i].x, b1[i].y);
+		}
+		glEnd();
+
+		glPointSize(8.0);
+		glColor3f(0.75, 0.5, 0.5);
+		glBegin(GL_POINTS);
+		for (int i = 0; i < 3; i++) {
+			glVertex2f(b1[i].x, b1[i].y);
+		}
+		glEnd();
 	}
-	glEnd();
-
-	glPointSize(8.0);
-	glColor3f(0.75, 0.5, 0.5);
-	glBegin(GL_POINTS);
-	for (int i = 0; i < 3; i++) {
-		glVertex2f(b1[i].x, b1[i].y);
-	}
-	glEnd();
-
 
 	vec2 b2[2];
-	b2[0] = lerp(b1[0], b1[1], u);
-	b2[1] = lerp(b1[1], b1[2], u);
+	b2[0] = oszto_pont(b1[0], b1[1], u);
+	b2[1] = oszto_pont(b1[1], b1[2], u);
 
-	glLineWidth(1.0);
-	glColor3f(0.0, 0.5, 0.5);
-	glBegin(GL_LINE_STRIP);
-	for (int i = 0; i < 2; i++) {
-		glVertex2f(b2[i].x, b2[i].y);
+	if (displayPoligon) {
+		glLineWidth(1.0);
+		glColor3f(0.0, 0.5, 0.5);
+		glBegin(GL_LINE_STRIP);
+		for (int i = 0; i < 2; i++) {
+			glVertex2f(b2[i].x, b2[i].y);
+		}
+		glEnd();
+
+		glPointSize(8.0);
+		glColor3f(0.75, 0.5, 0.5);
+		glBegin(GL_POINTS);
+		for (int i = 0; i < 2; i++) {
+			glVertex2f(b2[i].x, b2[i].y);
+		}
+		glEnd();
 	}
-	glEnd();
 
-	glPointSize(8.0);
-	glColor3f(0.75, 0.5, 0.5);
-	glBegin(GL_POINTS);
-	for (int i = 0; i < 2; i++) {
-		glVertex2f(b2[i].x, b2[i].y);
-	}
-	glEnd();
 
-	vec2 b31 = lerp(b2[0], b2[1], u);
+	vec2 b31 = oszto_pont(b2[0], b2[1], u);
 
 	glPointSize(8);
 	glColor3f(0.0, 0.0, 0.0);
@@ -256,6 +269,7 @@ void init() {
 
 void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);
+
 	hermite();
 	bernstein();
 	de_Casteljau();
@@ -300,9 +314,9 @@ void processMouseActiveMotion(GLint xMouse, GLint yMouse) {
 	}
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
+void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
+	//	esc key
 	case 27:
 		exit(0);
 		break;
@@ -316,8 +330,14 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'r':
 		points = originalPoints;
-		//calculatePoints();
+		displayPoligon = true;
 		break;
+	case 'p':
+		if (displayPoligon) {
+			displayPoligon = false;
+		} else {
+			displayPoligon = true;
+		}
 	}
 	glutPostRedisplay();
 }
