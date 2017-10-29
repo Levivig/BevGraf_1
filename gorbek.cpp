@@ -25,6 +25,17 @@ GLfloat start = -2;
 GLfloat middle = 0.5;
 GLfloat end = 1.5;
 
+//	de Casteljau parameter
+GLfloat u = 0.5;
+
+// set up pick radius for detecting movement of a control point
+GLint pickRadius = 4;
+
+//	aktuális pont kiválasztása
+GLint dragged = -1;
+
+//	show/hide control polygon
+bool displayPoligon = true;
 
 //////////////////////////////  Hermite-ív	///////////////////////////////////
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
@@ -43,18 +54,6 @@ mat4 M = inverse({T1,T2,T3,T4, true});
 vec4 TT = {3*t3*t3, 2*t3, 1, 0};
 
 ///////////////////////////////////////////////////////////////////////////////
-
-//	de Casteljau parameter
-GLfloat u = 0.5;
-
-// set up pick radius for detecting movement of a control point
-GLint pickRadius = 4;
-
-//	aktuális pont kiválasztása
-GLint dragged = -1;
-
-//	show/hide control polygon
-bool displayPoligon = true;
 
 void calculatePoints() {
 	points[4] = points[3] + (G * M * TT)/3;
@@ -340,7 +339,7 @@ void keyboard(unsigned char key, int x, int y) {
 		displayPoligon = true;
 		break;
 	case 'p':
-			displayPoligon = !displayPoligon;
+		displayPoligon = !displayPoligon;
 	}
 	glutPostRedisplay();
 }
