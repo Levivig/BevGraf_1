@@ -102,7 +102,6 @@ void displayControlPoints() {
 
 void hermite() {
 	//	Draws Hermite-curve
-
 	calculatePoints();
 	G = {points[1], points[2], points[3], points[0]-points[1]};
 
@@ -167,10 +166,10 @@ vec2 calculateCurvePoint(std::vector<vec2> pontok, GLfloat uu) {
 }
 
 void de_Casteljau() {
-	//	4-ed rendű Bézier görbe rajzolása a de Casteljau algoritmus segítségével
+	//	4-ed fokú Bézier görbe rajzolása a de Casteljau algoritmus segítségével
 	calculatePoints();
 
-	//	Első rendű osztópontok kiszámítása
+	//	Elsőrendű osztópontok kiszámítása
 	vec2 b0[4];
 	b0[0] = oszto_pont(points[6], points[7], u);
 	b0[1] = oszto_pont(points[7], points[8], u);
