@@ -273,33 +273,6 @@ void de_Casteljau() {
 	glEnd();
 }
 
-void init() {
-	glClearColor(1.0, 1.0, 1.0, 0.0);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glEnable(GL_POINT_SMOOTH);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glEnable(GL_LINE_SMOOTH);
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glShadeModel(GL_SMOOTH);
-	gluOrtho2D(0.0, winWidth, 0.0, winHeight);
-}
-
-void myDisplay() {
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	hermite();
-	bernstein();
-	de_Casteljau();
-
-	if (displayPoligon) {
-		displayControlPolygon();
-	}
-
-	displayControlPoints();
-	glutSwapBuffers();
-}
-
 GLint getActivePoint(std::vector<vec2> p, GLint size, GLint sens, GLint x, GLint y) {
 	GLint i, s = sens * sens;
 	vec2 P = { (float)x, (float)y };
@@ -359,6 +332,33 @@ void keyboard(unsigned char key, int x, int y) {
 		displayPoligon = !displayPoligon;
 	}
 	glutPostRedisplay();
+}
+
+void init() {
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glEnable(GL_POINT_SMOOTH);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glEnable(GL_LINE_SMOOTH);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glShadeModel(GL_SMOOTH);
+	gluOrtho2D(0.0, winWidth, 0.0, winHeight);
+}
+
+void myDisplay() {
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	hermite();
+	bernstein();
+	de_Casteljau();
+
+	if (displayPoligon) {
+		displayControlPolygon();
+	}
+
+	displayControlPoints();
+	glutSwapBuffers();
 }
 
 int main(int argc, char** argv) {
