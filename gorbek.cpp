@@ -9,14 +9,14 @@
 
 #include "bevgrafmath2017.h"
 
+
 //	Size of window
 GLsizei winHeight = 800, winWidth = 1000;
 
 std::vector<vec2> points = { {66, 786}, {44, 653}, {285, 776}, {578, 738},{703, 719},
 							{834, 445},{466, 475},{190, 497.5},{42, 349},
 							{171, 136},{507, 182} };
-
-vec2 erintoPont = {0,0};
+vec2 erintoPont;
 
 std::vector<vec2> originalPoints = points;
 
@@ -337,6 +337,7 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'r':
 		points = originalPoints;
 		displayPoligon = true;
+		u = 0.5;
 		break;
 	case 'p':
 		displayPoligon = !displayPoligon;
