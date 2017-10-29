@@ -20,7 +20,7 @@ vec2 erintoPont;
 
 std::vector<vec2> originalPoints = points;
 
-//	Hermite-ív paraméter tartománya
+//	Hermite-curve parameter range
 GLfloat start = -2;
 GLfloat middle = 0.5;
 GLfloat end = 1.5;
@@ -31,13 +31,13 @@ GLfloat u = 0.5;
 // set up pick radius for detecting movement of a control point
 GLint pickRadius = 4;
 
-//	aktuális pont kiválasztása
+//	selected point
 GLint dragged = -1;
 
 //	show/hide control polygon
 bool displayPoligon = true;
 
-//////////////////////////////  Hermite-ív	///////////////////////////////////
+//	Hermite-curve
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
 
 GLfloat t1 = start;
@@ -53,15 +53,15 @@ mat4 M = inverse({T1,T2,T3,T4, true});
 
 vec4 TT = {3*t3*t3, 2*t3, 1, 0};
 
-///////////////////////////////////////////////////////////////////////////////
-
 void calculatePoints() {
+	//	Calculates the position of unmoveable point
 	points[4] = points[3] + (G * M * TT)/3;
 	erintoPont = points[3] + (G * M * TT);
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
 }
 
 void displayControlPolygon() {
+	//	Displas the control polygon for the curves
 	calculatePoints();
 
 	glLineWidth(1.0);
@@ -81,6 +81,8 @@ void displayControlPolygon() {
 }
 
 void displayControlPoints() {
+	//	Displays control points for the curves
+
 	calculatePoints();
 
 	glPointSize(8);
@@ -99,6 +101,8 @@ void displayControlPoints() {
 }
 
 void hermite() {
+	//	Draws Hermite-curve
+
 	calculatePoints();
 	G = {points[1], points[2], points[3], points[0]-points[1]};
 
@@ -114,6 +118,7 @@ void hermite() {
 }
 
 void bernstein() {
+	//	Draws and calculates Bézier curve with the Bernstein polynomial
 	calculatePoints();
 
 	glLineWidth(3.0);
@@ -138,6 +143,8 @@ vec2 oszto_pont(vec2 a, vec2 b, GLfloat t) {
 }
 
 vec2 calculateCurvePoint(std::vector<vec2> pontok, GLfloat uu) {
+	//	Adott kontrolpontok és paraméter mellett kiszámítja
+	//  a Bézier görbe pontját, a de Casteljau algoritmussal
 
 	vec2 b0[4];
 	b0[0] = oszto_pont(pontok[0], pontok[1], uu);
@@ -160,8 +167,10 @@ vec2 calculateCurvePoint(std::vector<vec2> pontok, GLfloat uu) {
 }
 
 void de_Casteljau() {
+	//	4-ed rendű Bézier görbe rajzolása a de Casteljau algoritmus segítségével
 	calculatePoints();
 
+	//	Első rendű osztópontok kiszámítása
 	vec2 b0[4];
 	b0[0] = oszto_pont(points[6], points[7], u);
 	b0[1] = oszto_pont(points[7], points[8], u);
@@ -169,6 +178,7 @@ void de_Casteljau() {
 	b0[3] = oszto_pont(points[9], points[10], u);
 
 	if (displayPoligon) {
+		//	Elsőrendű osztopontok kirajzolása és összekötése
 		glLineWidth(1.0);
 		glColor3f(0.0, 0.5, 0.5);
 		glBegin(GL_LINE_STRIP);
@@ -186,12 +196,14 @@ void de_Casteljau() {
 		glEnd();
 	}
 
+	//	Másodrendű osztópontok kiszámítása
 	vec2 b1[3];
 	b1[0] = oszto_pont(b0[0], b0[1], u);
 	b1[1] = oszto_pont(b0[1], b0[2], u);
 	b1[2] = oszto_pont(b0[2], b0[3], u);
 
 	if (displayPoligon) {
+		//	Másodrendű osztopontok kirajzolása és összekötése
 		glLineWidth(1.0);
 		glColor3f(0.0, 0.5, 0.5);
 		glBegin(GL_LINE_STRIP);
@@ -209,11 +221,13 @@ void de_Casteljau() {
 		glEnd();
 	}
 
+	//	Harmadrendű osztópontok kiszámítása
 	vec2 b2[2];
 	b2[0] = oszto_pont(b1[0], b1[1], u);
 	b2[1] = oszto_pont(b1[1], b1[2], u);
 
 	if (displayPoligon) {
+		//	Harmadrendű osztopontok kirajzolása és összekötése
 		glLineWidth(1.0);
 		glColor3f(0.0, 0.5, 0.5);
 		glBegin(GL_LINE_STRIP);
@@ -231,15 +245,17 @@ void de_Casteljau() {
 		glEnd();
 	}
 
-
+	//	Negyedrendű osztópont kiszámítása
 	vec2 b31 = oszto_pont(b2[0], b2[1], u);
 
+	//	Negyedrendű osztopontok kirajzolása és összekötése
 	glPointSize(8);
 	glColor3f(0.0, 0.0, 0.0);
 	glBegin(GL_POINTS);
 		glVertex2f(b31.x, b31.y);
 	glEnd();
 
+	//	A görbe kontrollpontjai külön vektorban
 	std::vector<vec2> pp(5);
 	pp[0] = points[6];
 	pp[1] = points[7];
@@ -247,6 +263,7 @@ void de_Casteljau() {
 	pp[3] = points[9];
 	pp[4] = points[10];
 
+	//	A görbe kirajzolása
 	glLineWidth(2);
 	glColor3f(0.0, 0.0, 1.0);
 	glBegin(GL_LINE_STRIP);
