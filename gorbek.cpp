@@ -13,36 +13,23 @@
 //	Size of window
 GLsizei winHeight = 800, winWidth = 1000;
 
-std::vector<vec2> points = { {66, 786}, {44, 653}, {285, 776}, {578, 738},{703, 719},
-							{834, 445},{466, 475},{190, 497.5},{42, 349},
-							{171, 136},{507, 182} };
+std::vector<vec2> points = { {66, 786}, {44, 653}, {285, 776}, {578, 738}, {703, 719},
+							{834, 445}, {466, 475}, {190, 497.5}, {42, 349},
+							{171, 136}, {507, 182} };
 vec2 erintoPont;
 
 std::vector<vec2> originalPoints = points;
 
-//	Hermite-curve parameter range
-GLfloat start = -2;
-GLfloat middle = 0.5;
-GLfloat end = 1.5;
-
 //	de Casteljau parameter
 GLfloat u = 0.5;
 
-// set up pick radius for detecting movement of a control point
-GLint pickRadius = 4;
-
-//	selected point
-GLint dragged = -1;
-
-//	show/hide control polygon
-bool displayPoligon = true;
+//	Hermite-curve parameter range
+GLfloat t1 = -2;
+GLfloat t2 = 0.5;
+GLfloat t3 = 1.5;
 
 //	Hermite-curve
 mat24 G = {points[1], points[2], points[3], points[0]-points[1]};
-
-GLfloat t1 = start;
-GLfloat t2 = middle;
-GLfloat t3 = end;
 
 vec4 T1 = {t1*t1*t1, t1*t1, t1, 1};
 vec4 T2 = {t2*t2*t2, t2*t2, t2, 1};
@@ -53,6 +40,15 @@ mat4 M = inverse({T1,T2,T3,T4, true});
 
 vec4 TT = {3*t3*t3, 2*t3, 1, 0};
 
+// set up pick radius for detecting movement of a control point
+GLint pickRadius = 4;
+
+//	selected point
+GLint dragged = -1;
+
+//	show/hide control polygon
+bool displayPoligon = true;
+
 void calculatePoints() {
 	//	Calculates the position of unmoveable point
 	points[4] = points[3] + (G * M * TT)/3;
@@ -61,7 +57,7 @@ void calculatePoints() {
 }
 
 void displayControlPolygon() {
-	//	Displas the control polygon for the curves
+	//	Display the control polygon for the curves
 	calculatePoints();
 
 	glLineWidth(1.0);
@@ -108,7 +104,7 @@ void hermite() {
 	glLineWidth(3.0);
 	glColor3f(1.0, 0.0, 0.0);
 	glBegin(GL_LINE_STRIP);
-	for (float t = start; t <= end; t+=0.001) {
+	for (float t = t1; t <= t3; t+=0.001) {
 		vec4 T = {t*t*t, t*t, t, 1};
 		vec2 curvePoint = G*M*T;
 		glVertex2f(curvePoint.x, curvePoint.y);
