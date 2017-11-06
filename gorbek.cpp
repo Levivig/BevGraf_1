@@ -64,9 +64,16 @@ void displayControlPolygon() {
 	glColor3f(0.5, 0.5, 0.5);
 
 	glBegin(GL_LINE_STRIP);
-	for (int i = 0; i < 11; i++)
+	for (int i = 0; i < 2; i++)
 	{
-	  glVertex2f(points[i].x,points[i].y);
+		glVertex2f(points[i].x,points[i].y);
+	}
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	for (int i = 3; i < 11; i++)
+	{
+		glVertex2f(points[i].x,points[i].y);
 	}
 	glEnd();
 
@@ -312,11 +319,11 @@ void keyboard(unsigned char key, int x, int y) {
 		exit(0);
 		break;
 	case 'w':
-		if (u < 1) u += 0.002;
+		if (u < 0.99) u += 0.01;
 		else u = 1;
 		break;
 	case 's':
-		if (u > 0) u -= 0.002;
+		if (u > 0.01) u -= 0.01;
 		else u = 0;
 		break;
 	case 'r':
@@ -352,8 +359,8 @@ void myDisplay() {
 	if (displayPoligon) {
 		displayControlPolygon();
 	}
-
 	displayControlPoints();
+
 	glutSwapBuffers();
 }
 
