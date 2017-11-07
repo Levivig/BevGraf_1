@@ -79,7 +79,6 @@ void displayControlPolygon() {
 }
 
 void displayControlPoints() {
-
 	calculatePoints();
 
 	glPointSize(8);
@@ -136,7 +135,6 @@ vec2 oszto_pont(vec2 a, vec2 b, GLfloat t) {
 }
 
 vec2 calculateCurvePoint(std::vector<vec2> pontok, GLfloat uu) {
-
 	vec2 b0[4];
 	b0[0] = oszto_pont(pontok[0], pontok[1], uu);
 	b0[1] = oszto_pont(pontok[1], pontok[2], uu);
@@ -237,12 +235,11 @@ void de_Casteljau() {
 		glVertex2f(b31.x, b31.y);
 	glEnd();
 
-	std::vector<vec2> pp(5);
-	pp[0] = points[6];
-	pp[1] = points[7];
-	pp[2] = points[8];
-	pp[3] = points[9];
-	pp[4] = points[10];
+	std::vector<vec2> pp;
+
+	for (int i = 6; i < 11; i++) {
+		pp.push_back(points[i]);
+	}
 
 	glLineWidth(2);
 	glColor3f(0.0, 0.0, 1.0);
@@ -292,8 +289,7 @@ void processMouseActiveMotion(GLint xMouse, GLint yMouse) {
 
 void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
-	//	esc key
-	case 27:
+	case 'q':
 		exit(0);
 		break;
 	case 'w':
@@ -318,7 +314,6 @@ void keyboard(unsigned char key, int x, int y) {
 void init() {
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
 	glShadeModel(GL_SMOOTH);
@@ -341,14 +336,12 @@ void myDisplay() {
 }
 
 int main(int argc, char* argv[]) {
-	//	Init
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(winWidth, winHeight);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("1. Beadandó - Vig Levente");
 
-	//	Custom functions
 	glutDisplayFunc(myDisplay);
 	glutMouseFunc(processMouse);
 	glutMotionFunc(processMouseActiveMotion);
