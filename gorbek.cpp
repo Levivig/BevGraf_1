@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cmath>
 #include <vector>
 
@@ -44,6 +45,22 @@ GLint pickRadius = 4;
 GLint dragged = -1;
 
 bool displayPolygon = true;
+
+int fakt(int n) {
+    if(n == 0) return 1;
+
+    int eredm = 1;
+
+    for (int i = 1; i <= n; i++) {
+        eredm *= i;
+    }
+
+    return eredm;
+}
+
+int nCr(int n, int k){
+	return fakt(n) / (fakt(k) * fakt(n - k));
+}
 
 void calculatePoints() {
 	//	Calculates the position of unmoveable point
@@ -124,6 +141,24 @@ void bernstein() {
 		(3*pow(t,3) - 6*pow(t,2) + 3*t) * points[4] +
 		(-3*pow(t,3) + 3*pow(t,2)) * points[5] +
 		pow(t,3) * points[6];
+
+		glVertex2f(curvePoint.x, curvePoint.y);
+	}
+	glEnd();
+}
+
+void bernstein2() {
+	calculatePoints();
+
+	glLineWidth(3.0);
+	glColor3f(0.0 , 1.0, 0.0);
+	glBegin(GL_LINE_STRIP);
+
+	for (float t = 0; t <= 1; t+=0.001) {
+		vec2 curvePoint;
+		for (int i = 0; i < 4; i++) {
+			curvePoint += (nCr(3,i) * pow(t,i) * pow((1-t), 3 - i)) * points[i + 3];
+		}
 
 		glVertex2f(curvePoint.x, curvePoint.y);
 	}
@@ -324,7 +359,8 @@ void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	hermite();
-	bernstein();
+	//bernstein();
+	bernstein2();
 	de_Casteljau();
 
 	if (displayPolygon) {
