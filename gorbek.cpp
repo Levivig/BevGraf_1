@@ -1,3 +1,8 @@
+//	Vig Levente István
+//	GFZ5JS
+//	2017/18	DE-IK PTI
+//
+
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -63,7 +68,7 @@ int nCr(int n, int k){
 }
 
 void calculatePoints() {
-	//	Calculates the position of unmoveable point
+	//	Calculates the position of unmoveable points
 	points[4] = points[3] + (G * M * TT)/3;
 	erintoPont = points[3] + (G * M * TT);
 	points[7] = points[6] +  0.75 * (points[6] - points[5]);
@@ -110,7 +115,6 @@ void displayControlPoints() {
 	glColor3f(0.0, 1.0, 1.0);
 	glVertex2f(erintoPont.x, erintoPont.y);
 	glEnd();
-
 }
 
 void hermite() {
@@ -155,7 +159,7 @@ void bernstein2() {
 	glBegin(GL_LINE_STRIP);
 
 	for (float t = 0; t <= 1; t+=0.001) {
-		vec2 curvePoint;
+		vec2 curvePoint = {0,0};
 		for (int i = 0; i < 4; i++) {
 			curvePoint += (nCr(3,i) * pow(t,i) * pow((1-t), 3 - i)) * points[i + 3];
 		}
